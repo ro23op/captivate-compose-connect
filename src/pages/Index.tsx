@@ -18,6 +18,11 @@ export interface Post {
   createdAt: Date;
 }
 
+export interface Caption {
+  platform: string;
+  content: string;
+}
+
 const Index = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [generatedCaptions, setGeneratedCaptions] = useState<string[]>([]);
