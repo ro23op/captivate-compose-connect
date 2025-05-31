@@ -1,39 +1,33 @@
 
 import { useState } from 'react';
 import PostForm from '../components/PostForm';
-import CaptionOutput from '../components/CaptionOutput';
+import CaptionGenerator from '../components/CaptionGenerator';
 import TrendsPanel from '../components/TrendsPanel';
-import { Sparkles, TrendingUp } from 'lucide-react';
+import ContentCalendar from '../components/ContentCalendar';
+import InsightsPanel from '../components/InsightsPanel';
+import RecentPosts from '../components/RecentPosts';
+import { Sparkles, TrendingUp, Calendar, BarChart3 } from 'lucide-react';
 
-export interface Caption {
-  platform: 'Twitter' | 'LinkedIn';
+export interface Post {
+  id: string;
   content: string;
+  platforms: string[];
+  image?: string;
+  scheduledDate?: Date;
+  status: 'posted' | 'scheduled' | 'failed';
+  createdAt: Date;
 }
 
 const Index = () => {
-  const [captions, setCaptions] = useState<Caption[]>([]);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [generatedCaptions, setGeneratedCaptions] = useState<string[]>([]);
 
-  const handleGenerateCaptions = async (content: string) => {
-    setIsGenerating(true);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Mock OpenAI API response with realistic captions
-    const mockCaptions: Caption[] = [
-      {
-        platform: 'Twitter',
-        content: `🚀 ${content}\n\nJust discovered this game-changing approach! Here's what I learned:\n\n✨ Key insights thread below 👇\n\n#Innovation #TechTrends #Growth`
-      },
-      {
-        platform: 'LinkedIn',
-        content: `${content}\n\nIn today's rapidly evolving digital landscape, staying ahead of the curve is essential for professionals across all industries.\n\nHere are my key takeaways:\n• Strategic thinking drives innovation\n• Collaboration amplifies results\n• Continuous learning is non-negotiable\n\nWhat's your experience with this? I'd love to hear your thoughts in the comments.\n\n#ProfessionalDevelopment #Leadership #Innovation`
-      }
-    ];
-    
-    setCaptions(mockCaptions);
-    setIsGenerating(false);
+  const handlePostCreated = (newPost: Post) => {
+    setPosts(prev => [newPost, ...prev]);
+  };
+
+  const handleCaptionsGenerated = (captions: string[]) => {
+    setGeneratedCaptions(captions);
   };
 
   return (
@@ -60,25 +54,51 @@ const Index = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content Area */}
-          <div className="lg:col-span-3 space-y-8">
-            {/* Post Form */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left Column - Main Features */}
+          <div className="lg:col-span-8 space-y-8">
+            {/* Unified Multi-Platform Posting */}
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl shadow-slate-200/50 border border-white/50 p-8">
-              <PostForm onGenerate={handleGenerateCaptions} isGenerating={isGenerating} />
+              <div className="flex items-center space-x-2 mb-6">
+                <Sparkles className="w-6 h-6 text-purple-600" />
+                <h2 className="text-xl font-bold text-slate-800">Create & Publish</h2>
+              </div>
+              <PostForm onPostCreated={handlePostCreated} generatedCaptions={generatedCaptions} />
             </div>
 
-            {/* Caption Output */}
-            {captions.length > 0 && (
-              <div className="animate-fade-in">
-                <CaptionOutput captions={captions} />
+            {/* AI Caption Generator */}
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl shadow-slate-200/50 border border-white/50 p-8">
+              <CaptionGenerator onCaptionsGenerated={handleCaptionsGenerated} />
+            </div>
+
+            {/* Content Calendar */}
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl shadow-slate-200/50 border border-white/50 p-8">
+              <div className="flex items-center space-x-2 mb-6">
+                <Calendar className="w-6 h-6 text-blue-600" />
+                <h2 className="text-xl font-bold text-slate-800">Content Calendar</h2>
               </div>
-            )}
+              <ContentCalendar posts={posts} />
+            </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
+          {/* Right Column - Sidebar */}
+          <div className="lg:col-span-4 space-y-8">
+            {/* Trending Topics */}
             <TrendsPanel />
+
+            {/* Smart Insights */}
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl shadow-slate-200/50 border border-white/50 p-6">
+              <div className="flex items-center space-x-2 mb-6">
+                <BarChart3 className="w-6 h-6 text-green-600" />
+                <h3 className="text-lg font-bold text-slate-800">Smart Insights</h3>
+              </div>
+              <InsightsPanel />
+            </div>
+
+            {/* Recent Posts */}
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl shadow-slate-200/50 border border-white/50 p-6">
+              <RecentPosts posts={posts.slice(0, 5)} />
+            </div>
           </div>
         </div>
       </div>
